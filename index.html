@@ -45,6 +45,7 @@
   <div id="question"></div>
   <input type="text" id="answer" placeholder="Type your answer here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   <div class="status" id="status"></div>
+  <div id="correct-answer"></div>
   <div style="margin-top:20px;">
     <button onclick="showProgress()">Show Progress</button>
     <button onclick="resetProgress()">Reset Progress</button>
@@ -53,13 +54,24 @@
 
   <script>
     const questions = [
-      // ... (same question set as before)
+      {q: "como estas tu?", a: "estoy nervioso porque yo tengo un examen en espanol"},
+      {q: "como eres tu?", a: "yo soy alto y inteligente"},
+      {q: "donde esta tu casa?", a: "mi casa es en River Falls, cerca de Rocky Branch"},
+      {q: "que necisitas hacer para preparar para una fiesta", a: "yo hago comida y inflo los globos para una fiesta"},
+      {q: "cual es tu deporte favorito o actividad favorita", a: "mi actividad favorita es esqui porque es muy divertido"},
+      {q: "que te duele cuando jueges al voleibol?", a: "me duele los manos despues de jugar al voleibol"},
+      {q: "sabe tu quien es un aficionado al beisbol", a: "si, michael es un aficionado de beisbol y el jugar beisbol"},
+      {q: "que hiciste ayer?", a: "yo estudio para espanol despues de la escuela ayer"},
+      {q: "jugaste a un deporte ayer?", a: "no yo no jugar un deporte ayer, yo descanse"},
+      {q: "adonde fuiste el fin de semana pasado?", a: "yo voy al gimnasio el fin de semana pasado"},
+      {q: "te gustaria ir al cine conmigo el viernes?", a: "no, yo levanto pesas y pasar un rato con amigos en el vierne"},
+      {q: "siempre estudias para tus clases?", a: "no, yo estudio para espanol a veces, y yo casi nunca estudio para matematicas"}
     ];
 
     let currentIndex = 0;
 
     function removeAccents(str) {
-      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return str.normalize("NFD").replace(/\p{Diacritic}/gu, "");
     }
 
     function pickQuestion() {
@@ -67,6 +79,7 @@
       document.getElementById('question').innerText = questions[currentIndex].q;
       document.getElementById('answer').value = '';
       document.getElementById('status').innerText = '';
+      document.getElementById('correct-answer').innerText = '';
     }
 
     function checkAnswer() {
@@ -77,12 +90,13 @@
         statusEl.innerText = '✅ Correct!';
         statusEl.className = 'status good';
         incrementStreak(currentIndex);
+        setTimeout(pickQuestion, 1000);
       } else {
-        statusEl.innerText = `❌ Incorrect! Correct: "${questions[currentIndex].a}"`;
+        statusEl.innerText = `❌ Incorrect!`;
         statusEl.className = 'status bad';
+        document.getElementById('correct-answer').innerText = `Correct: "${questions[currentIndex].a}"`;
         resetStreak(currentIndex);
       }
-      setTimeout(pickQuestion, 1000);
     }
 
     function incrementStreak(index) {
