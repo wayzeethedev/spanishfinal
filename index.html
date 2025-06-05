@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spanish Practice App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f2f2f2;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .status {
+      margin-top: 10px;
+    }
+    .good {
+      color: green;
+    }
+    .bad {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h2>Spanish Study</h2>
+  <div id="question"></div>
+  <input type="text" id="answer" placeholder="Type your answer here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <div class="status" id="status"></div>
+  <div style="margin-top:20px;">
+    <button onclick="showProgress()">Show Progress</button>
+    <button onclick="resetProgress()">Reset Progress</button>
+  </div>
+  <div id="progress"></div>
+
+  <script>
+    const questions = [
+      { q: "¿Qué hay en tu casa?", a: "Hay una cama y un sofá en mi casa" },
+      { q: "¿Cómo te llamas?", a: "Me llamo Christian" },
+      { q: "¿Cómo estás tú?", a: "estoy nervioso porque yo tengo un examen en espanol" },
+      { q: "¿Cómo eres tú?", a: "yo soy alto y inteligente" },
+      { q: "¿Dónde está tu casa?", a: "mi casa es en River Falls, cerca de Rocky Branch" },
+      { q: "¿Qué necesitas hacer para preparar para una fiesta?", a: "yo hago comida y inflo los globos para una fiesta" },
+      { q: "¿Cuál es tu deporte favorito o actividad favorita?", a: "mi actividad favorita es esqui porque es muy divertido" },
+      { q: "¿Qué te duele cuando juegas al voleibol?", a: "me duele los manos despues de jugar al voleibol" },
+      { q: "¿Sabes tú quién es un aficionado al beisbol?", a: "si, michael es un aficionado de beisbol y el jugar beisbol" },
+      { q: "¿Qué hiciste ayer?", a: "yo estudio para espanol despues de la escuela ayer" },
+      { q: "¿Jugaste a un deporte ayer?", a: "no yo no jugar un deporte ayer, yo descanse" },
+      { q: "¿Adónde fuiste el fin de semana pasado?", a: "yo voy al gimnasio el fin de semana pasado" },
+      { q: "¿Te gustaría ir al cine conmigo el viernes?", a: "no, yo levanto pesas y pasar un rato con amigos en el vierne" },
+      { q: "¿Siempre estudias para tus clases?", a: "no, yo estudio para espanol a veces, y yo casi nunca estudio para matematicas" }
+    ];
+
+    let currentIndex = 0;
+
+    function removeAccents(str) {
+      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function pickQuestion() {
+      currentIndex = Math.floor(Math.random() * questions.length);
+      document.getElementById('question').innerText = questions[currentIndex].q;
+      document.getElementById('answer').value = '';
+      document.getElementById('status').innerText = '';
+    }
+
+    function checkAnswer() {
+      const userAnswer = removeAccents(document.getElementById('answer').value.trim().toLowerCase());
+      const correctAnswer = removeAccents(questions[currentIndex].a.toLowerCase());
+      let statusEl = document.getElementById('status');
+      if (userAnswer === correctAnswer) {
+        statusEl.innerText = '✅ Correct!';
+        statusEl.className = 'status good';
+        incrementStreak(currentIndex);
+      } else {
+        statusEl.innerText = `❌ Incorrect! Correct: "${questions[currentIndex].a}"`;
+        statusEl.className = 'status bad';
+        resetStreak(currentIndex);
+      }
+      setTimeout(pickQuestion, 1000);
+    }
+
+    function incrementStreak(index) {
+      let streaks = JSON.parse(localStorage.getItem('streaks') || '{}');
+      streaks[index] = (streaks[index] || 0) + 1;
+      localStorage.setItem('streaks', JSON.stringify(streaks));
+    }
+
+    function resetStreak(index) {
+      let streaks = JSON.parse(localStorage.getItem('streaks') || '{}');
+      streaks[index] = 0;
+      localStorage.setItem('streaks', JSON.stringify(streaks));
+    }
+
+    function showProgress() {
+      let streaks = JSON.parse(localStorage.getItem('streaks') || '{}');
+      let html = '<h4>Progress:</h4><ul>';
+      questions.forEach((q, i) => {
+        let streak = streaks[i] || 0;
+        if (streak >= 3) {
+          html += `<li class='good'>✅ ${q.q}</li>`;
+        } else {
+          html += `<li class='bad'>❌ ${q.q} (${streak}/3)</li>`;
+        }
+      });
+      html += '</ul>';
+      document.getElementById('progress').innerHTML = html;
+    }
+
+    function resetProgress() {
+      localStorage.removeItem('streaks');
+      document.getElementById('progress').innerHTML = '';
+      pickQuestion();
+    }
+
+    document.getElementById('answer').addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        checkAnswer();
+      }
+    });
+
+    pickQuestion();
+  </script>
+</body>
+</html>
